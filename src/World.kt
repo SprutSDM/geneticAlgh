@@ -3,8 +3,8 @@ import kotlin.math.pow
 import kotlin.random.Random
 
 class World(
-    private val env: Environment,
-    private var individs: List<Individ>
+    val env: Environment,
+    var individs: List<Individ>
 ) {
     private val envVariables: List<Pair<Float, Float>> = List(((env.bounds.second - env.bounds.first) / env.step).toInt() + 1) {
         val x = env.bounds.first + it * env.step
@@ -48,12 +48,12 @@ class World(
         }
     }
 
-    private fun calcDiff(individ: Individ): Float {
+    fun calcDiff(individ: Individ): Float {
         var sum = 0f
         for (envVar in envVariables) {
             val fitness = individ.getFitness(envVar.first)
             sum += (fitness - envVar.second).pow(2)
         }
-        return sum / (envVariables.size)
+        return (sum / (envVariables.size)).pow(0.5f)
     }
 }

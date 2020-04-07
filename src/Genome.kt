@@ -20,19 +20,30 @@ data class Genome (
             val power: Float
         ) : Gen(first = const, second = power) {
             fun getFitness(value: Float) = first * value.pow(second)
+            override fun toString(): String {
+                return "F${super.toString()}"
+            }
         }
 
         class Mutation(
             val chanceForMutation: Float,
             val intensityForMutation: Float
-        ): Gen(first = chanceForMutation, second = intensityForMutation)
+        ): Gen(first = chanceForMutation, second = intensityForMutation) {
+            override fun toString(): String {
+                return "M${super.toString()}"
+            }
+        }
+
+        override fun toString(): String {
+            return "($first, $second)"
+        }
 
         companion object {
             fun mutateGen(gen: Gen, intensityForMutation: Float): Gen {
                 return when (gen) {
                     is Mutation -> Mutation(
-                        chanceForMutation = mutateValue(gen.chanceForMutation, intensityForMutation).coerceIn(0f, 1f),
-                        intensityForMutation = mutateValue(gen.chanceForMutation, intensityForMutation).coerceIn(0f, 1f)
+                        chanceForMutation = mutateValue(gen.chanceForMutation, intensityForMutation).coerceIn(0.05f, 1f),
+                        intensityForMutation = mutateValue(gen.chanceForMutation, intensityForMutation).coerceIn(0.1f, 1f)
                     )
                     is Fitness -> Fitness(
                         const = mutateValue(gen.const, intensityForMutation),
@@ -42,7 +53,7 @@ data class Genome (
             }
 
             private fun mutateValue(value: Float, intensityForMutation: Float): Float {
-                return value + value * (Random.nextFloat() * intensityForMutation * 2 - 1f)
+                return value + value * (Random.nextFloat() * 2 - 1f) * intensityForMutation
             }
         }
     }
@@ -53,8 +64,8 @@ data class Genome (
         fun generateRandomGenome(gensCount: Int, genBounds: Pair<Float, Float>): Genome {
             val gens = mutableListOf<Gen>()
             gens.add(Gen.Mutation(
-                chanceForMutation = Random.nextFloat(),
-                intensityForMutation = Random.nextFloat()
+                chanceForMutation = 1f,
+                intensityForMutation = 1f
             ))
             repeat(gensCount - 1) {
                 gens.add(Gen.Fitness(
